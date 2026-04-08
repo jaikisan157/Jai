@@ -82,7 +82,7 @@ const Cursor = () => {
 
     // Update magnifying lens clip-path to follow exact mouse coordinates
     if (magnifierLayerRef.current && activeLensTarget.current) {
-      magnifierLayerRef.current.style.clipPath = `circle(40px at ${mouseX.current}px ${mouseY.current}px)`;
+      magnifierLayerRef.current.style.clipPath = `circle(32px at ${mouseX.current}px ${mouseY.current}px)`;
     }
     // Update zoom origin so the lens translates the zoom correctly
     if (magnifierZoomRef.current && activeLensTarget.current) {
@@ -130,6 +130,12 @@ const Cursor = () => {
     
     // Skip full page layouts or giant wrappers
     if (['BODY', 'HTML', 'MAIN', 'SECTION', 'HEADER', 'FOOTER'].includes(block.tagName)) return;
+
+    // Skip lens on interactive elements (buttons, links) since they have their own hover animations
+    if (isInteractive(target) || isInteractive(block)) {
+      clearLens();
+      return;
+    }
     
     // Optimization: avoid re-cloning if we're already locked onto the same block
     if (activeLensTarget.current === block) return;
@@ -160,6 +166,19 @@ const Cursor = () => {
       copyStyles.forEach(prop => {
         clone.style[prop] = computed[prop];
       });
+
+      // Detect actual background color by walking up the DOM tree
+      const getBg = (el) => {
+        let node = el;
+        while (node && node !== document.body) {
+          const bg = window.getComputedStyle(node).backgroundColor;
+          if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') return bg;
+          node = node.parentElement;
+        }
+        return window.getComputedStyle(document.body).backgroundColor;
+      };
+      const sectionBg = getBg(block);
+      magnifierLayerRef.current.style.backgroundColor = sectionBg;
 
       magnifierZoomRef.current.innerHTML = '';
       magnifierZoomRef.current.appendChild(clone);
@@ -308,9 +327,7 @@ const Cursor = () => {
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           pointerEvents: 'none', zIndex: 9998, overflow: 'hidden',
           opacity: 0, transition: 'opacity 0.2s',
-          clipPath: 'circle(40px at -100px -100px)',
-          backdropFilter: 'blur(15px)', WebkitBackdropFilter: 'blur(15px)',
-          backgroundColor: 'transparent'
+          clipPath: 'circle(32px at -100px -100px)'
         }}
       >
         <div 
