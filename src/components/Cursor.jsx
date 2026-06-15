@@ -124,10 +124,10 @@ const Cursor = () => {
   // Handle building the magnifying glass clone on mouseover
   const handleMouseOver = useCallback((e) => {
     let target = e.target;
-    
+
     // Find a reasonable block-level container so we capture sibling context (fixes missing bullets/adjacent text)
     let block = target.closest('p, h1, h2, h3, h4, h5, h6, ul, ol, li, a, button, blockquote, .interactive') || target;
-    
+
     // Skip full page layouts or giant wrappers
     if (['BODY', 'HTML', 'MAIN', 'SECTION', 'HEADER', 'FOOTER'].includes(block.tagName)) return;
 
@@ -136,19 +136,19 @@ const Cursor = () => {
       clearLens();
       return;
     }
-    
+
     // Optimization: avoid re-cloning if we're already locked onto the same block
     if (activeLensTarget.current === block) return;
     activeLensTarget.current = block;
-    
+
     const rect = block.getBoundingClientRect();
     // Prevent cloning massive elements that span the whole screen to save performance safely
     if (rect.width > window.innerWidth * 0.8 || rect.height > window.innerHeight * 0.8) return;
-    
+
     if (magnifierZoomRef.current && magnifierLayerRef.current) {
       const computed = window.getComputedStyle(block);
       const clone = block.cloneNode(true);
-      
+
       // Inherit exact visual coordinates and appearance
       clone.style.position = 'fixed';
       clone.style.top = rect.top + 'px';
@@ -321,8 +321,8 @@ const Cursor = () => {
   return (
     <>
       {/* Magnifier Lens Background & Wrapper */}
-      <div 
-        ref={magnifierLayerRef} 
+      <div
+        ref={magnifierLayerRef}
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           pointerEvents: 'none', zIndex: 9998, overflow: 'hidden',
@@ -330,7 +330,7 @@ const Cursor = () => {
           clipPath: 'circle(32px at -100px -100px)'
         }}
       >
-        <div 
+        <div
           ref={magnifierZoomRef}
           style={{ width: '100vw', height: '100vh', transform: 'scale(1.4)', transformOrigin: '0px 0px' }}
         />
