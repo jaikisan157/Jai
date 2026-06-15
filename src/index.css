@@ -1466,8 +1466,11 @@ body::after {
   }
 
   .cursor,
-  .cursor-follower {
-    display: none;
+  .cursor-follower,
+  .cursor-core,
+  .cursor-ring,
+  .cursor-trail-particle {
+    display: none !important;
   }
 
   .marquee-item {

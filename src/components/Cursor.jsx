@@ -1,6 +1,8 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 
 const Cursor = () => {
+  const [isTouch, setIsTouch] = useState(false);
+
   // DOM references
   const coreRef = useRef(null);
   const ringRef = useRef(null);
@@ -247,6 +249,7 @@ const Cursor = () => {
   // Setup and cleanup
   useEffect(() => {
     if (isTouchDevice()) {
+      setIsTouch(true);
       document.body.classList.add('touch-device');
       return;
     }
@@ -331,6 +334,8 @@ const Cursor = () => {
     document.head.appendChild(style);
     return () => { document.head.removeChild(style); };
   }, []);
+
+  if (isTouch) return null;
 
   return (
     <>
