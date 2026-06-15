@@ -167,15 +167,29 @@ const Cursor = () => {
         clone.style[prop] = computed[prop];
       });
 
-      // Detect actual background color by walking up the DOM tree
+      // Detect actual background color by walking up the DOM tree (ensuring it is fully opaque to hide underlying text)
       const getBg = (el) => {
+        const isOpaque = (colorStr) => {
+          if (!colorStr || colorStr === 'transparent') return false;
+          if (colorStr.startsWith('rgb(')) return true;
+          if (colorStr.startsWith('rgba(')) {
+            const parts = colorStr.substring(5, colorStr.length - 1).split(',');
+            if (parts.length === 4) {
+              const alpha = parseFloat(parts[3].trim());
+              return alpha >= 0.95;
+            }
+          }
+          return true;
+        };
+
         let node = el;
         while (node && node !== document.body) {
           const bg = window.getComputedStyle(node).backgroundColor;
-          if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') return bg;
+          if (isOpaque(bg)) return bg;
           node = node.parentElement;
         }
-        return window.getComputedStyle(document.body).backgroundColor;
+        const bodyBg = window.getComputedStyle(document.body).backgroundColor;
+        return isOpaque(bodyBg) ? bodyBg : '#F5F0E8';
       };
       const sectionBg = getBg(block);
       magnifierLayerRef.current.style.backgroundColor = sectionBg;
